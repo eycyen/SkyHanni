@@ -7,7 +7,7 @@ import at.hannibal2.skyhanni.data.IslandType
 import at.hannibal2.skyhanni.events.ItemAddEvent
 import at.hannibal2.skyhanni.events.SackChangeEvent
 import at.hannibal2.skyhanni.events.garden.farming.CropClickEvent
-import at.hannibal2.skyhanni.features.garden.GardenPlotApi
+import at.hannibal2.skyhanni.features.garden.GardenApi
 import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
 import at.hannibal2.skyhanni.utils.NeuInternalName
 import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
@@ -92,7 +92,7 @@ object GreenhouseProfitTracker {
         RenderDisplayHelper(
             outsideInventory = true,
             inOwnInventory = true,
-            condition = { config.enabled && GardenPlotApi.inGreenhouse() },
+            condition = { config.enabled && GardenApi.inGarden() },
             onRender = {
                 tracker.firstUpdate()
                 tracker.renderDisplay(config.position)
@@ -102,7 +102,7 @@ object GreenhouseProfitTracker {
 
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)
     fun onItemAdd(event: ItemAddEvent) {
-        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+        if (!config.enabled || !GardenApi.inGarden()) return
         
         if (event.internalName in allowedDrops) {
             tracker.addItem(event.internalName, event.amount, command = false)
@@ -111,7 +111,7 @@ object GreenhouseProfitTracker {
 
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)
     fun onSackChange(event: SackChangeEvent) {
-        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+        if (!config.enabled || !GardenApi.inGarden()) return
 
         for (change in event.sackChanges) {
             val amount = change.delta
@@ -123,7 +123,7 @@ object GreenhouseProfitTracker {
 
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)
     fun onCropClick(event: CropClickEvent) {
-        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+        if (!config.enabled || !GardenApi.inGarden()) return
 
         // Assuming every crop click that breaks something is a plant break.
         tracker.modify { it.brokenPlants++ }
