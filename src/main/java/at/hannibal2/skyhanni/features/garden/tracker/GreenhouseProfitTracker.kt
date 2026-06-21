@@ -17,6 +17,8 @@ import at.hannibal2.skyhanni.utils.collection.RenderableCollectionUtils.addSearc
 import at.hannibal2.skyhanni.utils.renderables.Renderable
 import at.hannibal2.skyhanni.utils.renderables.Searchable
 import at.hannibal2.skyhanni.utils.renderables.toSearchable
+import at.hannibal2.skyhanni.utils.renderables.primitives.text
+import at.hannibal2.skyhanni.utils.NumberUtil.shortFormat
 import at.hannibal2.skyhanni.utils.tracker.ItemTrackerData
 import at.hannibal2.skyhanni.utils.tracker.SessionUptime
 import at.hannibal2.skyhanni.utils.tracker.SkyHanniItemTracker
@@ -54,6 +56,22 @@ object GreenhouseProfitTracker {
 
         @Expose
         var brokenMutations: Long = 0
+
+        override fun getDescription(timesGained: Long): List<String> {
+            return listOf(
+                "§7Dropped §e${timesGained.addSeparators()} §7times."
+            )
+        }
+
+        override fun getCoinName(item: TrackedItem) = "§6Greenhouse Coins"
+
+        override fun getCoinDescription(item: TrackedItem): List<String> {
+            val amountFormat = item.totalAmount.shortFormat()
+            return listOf(
+                "§7Greenhouse drops gave you",
+                "§6$amountFormat coins §7in total.",
+            )
+        }
     }
 
     private fun drawDisplay(data: Data): List<Searchable> = buildList {
@@ -96,7 +114,7 @@ object GreenhouseProfitTracker {
         if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
 
         for (change in event.sackChanges) {
-            val amount = change.difference
+            val amount = change.delta
             if (amount > 0 && change.internalName in allowedDrops) {
                 tracker.addItem(change.internalName, amount, command = false)
             }
