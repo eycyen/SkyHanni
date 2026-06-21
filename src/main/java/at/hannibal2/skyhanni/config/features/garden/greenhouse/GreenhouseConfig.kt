@@ -3,6 +3,7 @@ package at.hannibal2.skyhanni.config.features.garden.greenhouse
 import at.hannibal2.skyhanni.config.FeatureToggle
 import at.hannibal2.skyhanni.config.core.config.Position
 import com.google.gson.annotations.Expose
+import io.github.notenoughupdates.moulconfig.annotations.Accordion
 import io.github.notenoughupdates.moulconfig.annotations.ConfigEditorBoolean
 import io.github.notenoughupdates.moulconfig.annotations.ConfigLink
 import io.github.notenoughupdates.moulconfig.annotations.ConfigOption
@@ -49,6 +50,7 @@ class GreenhouseConfig {
         name = "Profit Tracker",
         desc = "Track profit and statistics from Greenhouse plots.",
     )
+    @Accordion
     var greenhouseProfitTracker: GreenhouseProfitTrackerConfig = GreenhouseProfitTrackerConfig()
 
     @Expose
