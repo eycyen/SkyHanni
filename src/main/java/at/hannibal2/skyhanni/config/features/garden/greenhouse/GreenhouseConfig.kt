@@ -45,6 +45,13 @@ class GreenhouseConfig {
     var highlightWaterStatus: Boolean = true
 
     @Expose
+    @ConfigOption(
+        name = "Profit Tracker",
+        desc = "Track profit and statistics from Greenhouse plots.",
+    )
+    var greenhouseProfitTracker: GreenhouseProfitTrackerConfig = GreenhouseProfitTrackerConfig()
+
+    @Expose
     @ConfigLink(owner = GreenhouseConfig::class, field = "showDisplay")
     val position: Position = Position(180, 40)
 }
