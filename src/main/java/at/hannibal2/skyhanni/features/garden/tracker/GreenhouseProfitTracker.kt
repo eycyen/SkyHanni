@@ -32,10 +32,10 @@ object GreenhouseProfitTracker {
 
     // Whitelist of allowed items to be tracked as profit in the Greenhouse
     private val allowedDrops = listOf(
-        "MUTATION_HELIANTHUS",
-        "MUTATION_FERMENTO",
-        "MUTATION_SQUASH",
-        "MUTATION_CROPIE",
+        "HELIANTHUS",
+        "FERMENTO",
+        "SQUASH",
+        "CROPIE",
         "ETHEREAL_VINE",
         // Add other mutations and raw crops if needed.
         // We can expand this list or load from Repo later.
