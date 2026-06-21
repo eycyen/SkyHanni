@@ -1,0 +1,116 @@
+package at.hannibal2.skyhanni.features.garden.tracker
+
+import at.hannibal2.skyhanni.SkyHanniMod
+import at.hannibal2.skyhanni.api.event.HandleEvent
+import at.hannibal2.skyhanni.config.features.garden.greenhouse.GreenhouseProfitTrackerConfig
+import at.hannibal2.skyhanni.data.IslandType
+import at.hannibal2.skyhanni.events.ItemAddEvent
+import at.hannibal2.skyhanni.events.SackChangeEvent
+import at.hannibal2.skyhanni.events.garden.farming.CropClickEvent
+import at.hannibal2.skyhanni.features.garden.GardenPlotApi
+import at.hannibal2.skyhanni.skyhannimodule.SkyHanniModule
+import at.hannibal2.skyhanni.utils.NeuInternalName
+import at.hannibal2.skyhanni.utils.NeuInternalName.Companion.toInternalName
+import at.hannibal2.skyhanni.utils.NumberUtil.addSeparators
+import at.hannibal2.skyhanni.utils.RenderDisplayHelper
+import at.hannibal2.skyhanni.utils.collection.RenderableCollectionUtils.addSearchString
+import at.hannibal2.skyhanni.utils.renderables.Renderable
+import at.hannibal2.skyhanni.utils.renderables.Searchable
+import at.hannibal2.skyhanni.utils.renderables.toSearchable
+import at.hannibal2.skyhanni.utils.tracker.ItemTrackerData
+import at.hannibal2.skyhanni.utils.tracker.SessionUptime
+import at.hannibal2.skyhanni.utils.tracker.SkyHanniItemTracker
+import at.hannibal2.skyhanni.utils.tracker.SkyHanniTracker
+import com.google.gson.annotations.Expose
+
+@SkyHanniModule
+object GreenhouseProfitTracker {
+
+    private val config: GreenhouseProfitTrackerConfig get() = SkyHanniMod.feature.garden.greenhouse.greenhouseProfitTracker
+
+    // Whitelist of allowed items to be tracked as profit in the Greenhouse
+    private val allowedDrops = listOf(
+        "MUTATION_HELIANTHUS",
+        "MUTATION_FERMENTO",
+        "MUTATION_SQUASH",
+        "MUTATION_CROPIE",
+        "ETHEREAL_VINE",
+        // Add other mutations and raw crops if needed.
+        // We can expand this list or load from Repo later.
+    ).map { it.toInternalName() }
+
+    val tracker = SkyHanniItemTracker(
+        "Greenhouse Profit Tracker",
+        ::Data,
+        { it.garden.greenhouse.profitTracker },
+        drawDisplay = { drawDisplay(it) },
+        trackerConfig = { config.perTrackerConfig },
+        customUptimeControl = true
+    )
+
+    class Data : ItemTrackerData<SessionUptime.Garden>(SessionUptime.Garden::class) {
+        @Expose
+        var brokenPlants: Long = 0
+
+        @Expose
+        var brokenMutations: Long = 0
+    }
+
+    private fun drawDisplay(data: Data): List<Searchable> = buildList {
+        addSearchString("§e§lGreenhouse Profit Tracker")
+
+        val profit = tracker.drawItems(data, { true }, this)
+
+        add(Renderable.text("§7Broken Plants: §e${data.brokenPlants.addSeparators()}").toSearchable())
+        add(Renderable.text("§7Broken Mutations: §e${data.brokenMutations.addSeparators()}").toSearchable())
+
+        val duration = data.getTotalUptime()
+        addAll(tracker.addTotalProfit(profit, data.brokenPlants, "plant break", duration, "Breaks"))
+
+        tracker.addPriceFromButton(this)
+    }
+
+    init {
+        RenderDisplayHelper(
+            outsideInventory = true,
+            inOwnInventory = true,
+            condition = { config.enabled && GardenPlotApi.inGreenhouse() },
+            onRender = {
+                tracker.firstUpdate()
+                tracker.renderDisplay(config.position)
+            },
+        )
+    }
+
+    @HandleEvent(onlyOnIsland = IslandType.GARDEN)
+    fun onItemAdd(event: ItemAddEvent) {
+        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+        
+        if (event.internalName in allowedDrops) {
+            tracker.addItem(event.internalName, event.amount, command = false)
+        }
+    }
+
+    @HandleEvent(onlyOnIsland = IslandType.GARDEN)
+    fun onSackChange(event: SackChangeEvent) {
+        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+
+        for (change in event.sackChanges) {
+            val amount = change.difference
+            if (amount > 0 && change.internalName in allowedDrops) {
+                tracker.addItem(change.internalName, amount, command = false)
+            }
+        }
+    }
+
+    @HandleEvent(onlyOnIsland = IslandType.GARDEN)
+    fun onCropClick(event: CropClickEvent) {
+        if (!config.enabled || !GardenPlotApi.inGreenhouse()) return
+
+        // Assuming every crop click that breaks something is a plant break.
+        tracker.modify { it.brokenPlants++ }
+        
+        // TODO: Detect if it's a mutation block and increment brokenMutations
+        // if (event.blockType.isMutation()) tracker.modify { it.brokenMutations++ }
+    }
+}

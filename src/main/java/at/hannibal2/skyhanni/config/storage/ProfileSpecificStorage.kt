@@ -42,6 +42,7 @@ import at.hannibal2.skyhanni.features.garden.tracker.CropFeverTracker
 import at.hannibal2.skyhanni.features.garden.tracker.GardenBpsTracker
 import at.hannibal2.skyhanni.features.garden.tracker.PestProfitTracker
 import at.hannibal2.skyhanni.features.garden.tracker.RareCropTracker
+import at.hannibal2.skyhanni.features.garden.tracker.GreenhouseProfitTracker
 import at.hannibal2.skyhanni.features.garden.visitor.VisitorReward
 import at.hannibal2.skyhanni.features.gifting.GiftProfitTracker
 import at.hannibal2.skyhanni.features.hunting.HuntingProfitTracker
@@ -655,7 +656,10 @@ class ProfileSpecificStorage(
 
         class GreenHouseStorage(
             @Expose var nextCycle: SimpleTimeMark = farPast(),
-        )
+        ) {
+            @Expose
+            var profitTracker: GreenhouseProfitTracker.Data = GreenhouseProfitTracker.Data()
+        }
     }
 
     // - gui
