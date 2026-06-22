@@ -34,7 +34,7 @@ object GreenhouseProfitTracker {
     private val allowedCrops = listOf(
         "NETHER_STALK",
         "WHEAT",
-        "INK_SAC:3",
+        "INK_SACK:3",
         "PUMPKIN",
         "MELON",
         "POTATO_ITEM",
@@ -45,7 +45,35 @@ object GreenhouseProfitTracker {
         "BROWN_MUSHROOM",
         "WILD_ROSE",
         "MOONFLOWER",
-        "DOUBLE_PLANT"
+        "DOUBLE_PLANT",
+        "ENCHANTED_WHEAT",
+        "ENCHANTED_HAY_BALE",
+        "ENCHANTED_CARROT",
+        "ENCHANTED_GOLDEN_CARROT",
+        "ENCHANTED_POTATO",
+        "ENCHANTED_BAKED_POTATO",
+        "ENCHANTED_PUMPKIN",
+        "POLISHED_PUMPKIN",
+        "ENCHANTED_SUGAR",
+        "ENCHANTED_SUGAR_CANE",
+        "ENCHANTED_MELON",
+        "ENCHANTED_MELON_BLOCK",
+        "ENCHANTED_CACTUS_GREEN",
+        "ENCHANTED_CACTUS",
+        "ENCHANTED_COCOA",
+        "ENCHANTED_COOKIE",
+        "ENCHANTED_RED_MUSHROOM",
+        "ENCHANTED_BROWN_MUSHROOM",
+        "ENCHANTED_HUGE_MUSHROOM_2",
+        "ENCHANTED_HUGE_MUSHROOM_1",
+        "ENCHANTED_NETHER_STALK",
+        "MUTANT_NETHER_STALK",
+        "ENCHANTED_SUNFLOWER",
+        "COMPACTED_SUNFLOWER",
+        "ENCHANTED_MOONFLOWER",
+        "COMPACTED_MOONFLOWER",
+        "ENCHANTED_WILD_ROSE",
+        "COMPACTED_WILD_ROSE"
     ).map { it.toInternalName() }
 
     val tracker = SkyHanniItemTracker(
@@ -115,17 +143,7 @@ object GreenhouseProfitTracker {
         }
     }
 
-    @HandleEvent(onlyOnIsland = IslandType.GARDEN)
-    fun onSackChange(event: SackChangeEvent) {
-        if (!config.enabled || !GardenApi.inGarden()) return
 
-        for (change in event.sackChanges) {
-            val amount = change.delta
-            if (amount > 0 && change.internalName in allowedCrops) {
-                tracker.addItem(change.internalName, amount, command = false)
-            }
-        }
-    }
 
     @HandleEvent(onlyOnIsland = IslandType.GARDEN)
     fun onCropClick(event: CropClickEvent) {
