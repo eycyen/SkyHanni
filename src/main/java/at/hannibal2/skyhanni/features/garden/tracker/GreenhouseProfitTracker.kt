@@ -30,15 +30,22 @@ object GreenhouseProfitTracker {
 
     private val config: GreenhouseProfitTrackerConfig get() = SkyHanniMod.feature.garden.greenhouse.greenhouseProfitTracker
 
-    // Whitelist of allowed items to be tracked as profit in the Greenhouse
-    private val allowedDrops = listOf(
-        "HELIANTHUS",
-        "FERMENTO",
-        "SQUASH",
-        "CROPIE",
-        "ETHEREAL_VINE",
-        // Add other mutations and raw crops if needed.
-        // We can expand this list or load from Repo later.
+    // Allowed raw crops that are obtained from breaking raw crops or mutations.
+    private val allowedCrops = listOf(
+        "NETHER_STALK",
+        "WHEAT",
+        "INK_SAC:3",
+        "PUMPKIN",
+        "MELON",
+        "POTATO_ITEM",
+        "CARROT_ITEM",
+        "CACTUS",
+        "SUGAR_CANE",
+        "RED_MUSHROOM",
+        "BROWN_MUSHROOM",
+        "WILD_ROSE",
+        "MOONFLOWER",
+        "DOUBLE_PLANT"
     ).map { it.toInternalName() }
 
     val tracker = SkyHanniItemTracker(
@@ -104,7 +111,7 @@ object GreenhouseProfitTracker {
     fun onItemAdd(event: ItemAddEvent) {
         if (!config.enabled || !GardenApi.inGarden()) return
         
-        if (event.internalName in allowedDrops) {
+        if (event.internalName in allowedCrops) {
             tracker.addItem(event.internalName, event.amount, command = false)
         }
     }
@@ -115,7 +122,7 @@ object GreenhouseProfitTracker {
 
         for (change in event.sackChanges) {
             val amount = change.delta
-            if (amount > 0 && change.internalName in allowedDrops) {
+            if (amount > 0 && change.internalName in allowedCrops) {
                 tracker.addItem(change.internalName, amount, command = false)
             }
         }
