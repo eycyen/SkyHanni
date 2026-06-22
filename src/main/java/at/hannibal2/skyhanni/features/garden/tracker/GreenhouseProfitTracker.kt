@@ -53,8 +53,7 @@ object GreenhouseProfitTracker {
         ::Data,
         { it.garden.greenhouse.profitTracker },
         drawDisplay = { drawDisplay(it) },
-        trackerConfig = { config.perTrackerConfig },
-        customUptimeControl = true
+        trackerConfig = { config.perTrackerConfig }
     )
 
     class Data : ItemTrackerData<SessionUptime.Garden>(SessionUptime.Garden::class) {
